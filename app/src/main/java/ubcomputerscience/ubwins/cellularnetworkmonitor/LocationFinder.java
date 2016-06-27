@@ -1,19 +1,14 @@
 /**
- * Created by Gautam on 6/18/16.
- * MBP111.0138.B16
- * System Serial: C02P4SP9G3QH
- * agautam2@buffalo.edu
- * University at Buffalo, The State University of New York.
- * Copyright © 2016 Gautam. All rights reserved.
+ *   UbWins Lab
+ *   University at Buffalo, The State University of New York.
+ *
  */
 
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
 import android.app.Service;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -24,7 +19,6 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,50 +41,11 @@ public class LocationFinder extends Service implements LocationListener
     private static final long updateInterval = 30000;
     static final String TAG = "[CELNETMON-LOCFINDER]";
     protected LocationManager locationManager;
-    protected LocationListener locationListener;
 
     public LocationFinder(Context context)
     {
         this.mContext = context;
         Log.v(TAG,"Context Constructor Fired.");
-    }
-
-    public Location getLocationByNetwork()
-    {
-        try
-        {
-            Log.v(TAG, "trying to get location from Wi-Fi or Cellular Towers");
-            locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, updateInterval, distance, this);
-            geocoder = new Geocoder(mContext);
-
-            if(locationManager==null)
-            {
-                Log.v(TAG, "location manager returned null");
-            }
-            if (locationManager != null)
-            {
-                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                if (location != null)
-                {
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-                    Log.v(TAG, "LAT: " + Double.toString(latitude));
-                    Log.v(TAG, "LONG: " + Double.toString(longitude));
-
-                }
-                else
-                {
-                    Log.v(TAG, "Location returned null");
-                }
-            }
-        }
-        catch(SecurityException s)
-        {
-            s.printStackTrace();
-        }
-
-        return location;
     }
 
     public void addressResolver(Location location)

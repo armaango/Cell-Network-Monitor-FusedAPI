@@ -1,10 +1,7 @@
 /**
- *   Created by Gautam on 6/18/16.
- *   MBP111.0138.B16
- *   System Serial: C02P4SP9G3QH
- *   agautam2@buffalo.edu
+ *   UbWins Lab
  *   University at Buffalo, The State University of New York.
- *   Copyright © 2016 Gautam. All rights reserved.
+ *
  */
 
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
@@ -14,13 +11,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Geocoder;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -144,8 +139,8 @@ public class MainActivity extends AppCompatActivity implements
     {
         File sd = Environment.getExternalStorageDirectory();
         File data = Environment.getDataDirectory();
-        FileChannel source = null;
-        FileChannel destination = null;
+        FileChannel source ;
+        FileChannel destination ;
         String currentDBPath = "/data/" + "ubwins.ubcomputerscience.netanalyzer" + "/databases/" + "mainTuple";
         String backupDBPath = "mainTuple";
         File currentDB = new File(data, currentDBPath);
@@ -332,16 +327,11 @@ public class MainActivity extends AppCompatActivity implements
         return android.os.Build.VERSION.RELEASE;
     }
 
-    private void enableStrictMode()
-    {
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-    }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException
     {
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-        String line = "";
+        String line ;
         String result = "";
         while ((line = bufferedReader.readLine()) != null)
             result += line;
@@ -363,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements
 
     public String POST(String url)
     {
-        InputStream inputStream = null;
+        InputStream inputStream ;
         String result = "";
             try {
 
