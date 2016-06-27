@@ -14,7 +14,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -29,7 +28,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -48,7 +46,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.channels.FileChannel;
-import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -66,11 +63,7 @@ public class MainActivity extends AppCompatActivity implements
     CellularDataRecorder cdr;
     LocationFinder locationFinder;
     Location location;
-    String locality;
-    String adminArea;
-    String countryCode;
-    String throughFare;
-    Geocoder geocoder;
+
 
     //Exports SQLiteDB to CSV file in Phone Storage
     public void exportToCSV()
@@ -98,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements
                 DBHandler dbHandler = new DBHandler(getApplicationContext());
                 SQLiteDatabase sqLiteDatabase = dbHandler.getReadableDatabase();
                 Cursor curCSV = sqLiteDatabase.rawQuery("select * from cellRecords", null);
-                printWriter.println("Latitude,Longitude,locality,city,state,country,NETWORK_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_STATE,NETWORK_RSSI");
+                printWriter.println("Latitude,Longitude,locality,city,state,country,NETWORK_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_STATE,NETWORK_RSSI,DATA_STATE,DATA_ACTIVITY");
                 while(curCSV.moveToNext())
                 {
                     Double latitude = curCSV.getDouble(curCSV.getColumnIndex("LAT"));
@@ -113,8 +106,9 @@ public class MainActivity extends AppCompatActivity implements
                     String networkType = curCSV.getString(curCSV.getColumnIndex("NETWORK_TYPE"));
                     String networkState = curCSV.getString(curCSV.getColumnIndex("NETWORK_STATE"));
                     String networkRSSI = curCSV.getString(curCSV.getColumnIndex("NETWORK_RSSI"));
-
-                    String record = latitude + "," + longitude + "," + locality + "," + city + "," + stateName + "," + country + "," + networkProvider + "," + timeStamp + "," + networkType + "," + networkState + "," + networkRSSI;
+                    String dataState = curCSV.getString(curCSV.getColumnIndex("DATA_STATE"));
+                    String dataActivity = curCSV.getString(curCSV.getColumnIndex("DATA_ACTIVITY"));
+                    String record = latitude + "," + longitude + "," + locality + "," + city + "," + stateName + "," + country + "," + networkProvider + "," + timeStamp + "," + networkType + "," + networkState + "," + networkRSSI+ "," + dataState + "," + dataActivity;
                     Log.v(TAG, "attempting to write to file");
                     printWriter.println(record);
                     Log.v(TAG, "data written to file");
@@ -280,11 +274,15 @@ public class MainActivity extends AppCompatActivity implements
                         Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
                         String timeStamp = cdr.getLocalTimeStamp();
                         String cellularInfo = cdr.getCellularInfo(telephonyManager);
+                        String dataActivity = cdr.getCurrentDataActivity(telephonyManager);
+                        String dataState = cdr.getCurrentDataState(telephonyManager);
 
                         Log.v(TAG, "TIME STAMP: " + timeStamp);
                         Log.v(TAG, "CELLULAR INFO: " + cellularInfo);
+                        Log.v(TAG, "DATA ACTIVITY: "+dataActivity);
+                        Log.v(TAG, "DATA STATE: " +dataState);
                         dbStore = new DBstore(MainActivity.this);
-                        dbStore.insertIntoDB(location, timeStamp, cellularInfo);
+                        dbStore.insertIntoDB(location, timeStamp, cellularInfo,dataActivity,dataState);
 
                         locationFinder.addressResolver(location);
                         double latitude = location.getLatitude();
@@ -441,62 +439,6 @@ public class MainActivity extends AppCompatActivity implements
             Toast.makeText(getBaseContext(), "Device has. No Internet Connectivity! Please check your Network Connection and try again", Toast.LENGTH_LONG).show();
         }
 
-    }
-    public void addressResolver(Location location)
-    {
-
-        ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        geocoder = new Geocoder(getApplicationContext());
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
-        try {
-            if (isConnected)
-            {
-                Log.v(TAG, "Attempting to resolve address");
-                List<Address> locationList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                if (locationList.get(0).getLocality() != null)
-                {
-                    locality = locationList.get(0).getLocality();
-                    Log.v(TAG, "[LOCALITY]" + locality);
-                }
-                if (locationList.get(0).getAdminArea() != null)
-                {
-                    adminArea = locationList.get(0).getAdminArea();
-                    Log.v(TAG, "[ADMIN AREA]" + adminArea);
-                }
-                if (locationList.get(0).getCountryName() != null)
-                {
-                    countryCode = locationList.get(0).getCountryName();
-                    Log.v(TAG, "[COUNTRY]" + countryCode);
-                }
-                if (locationList.get(0).getThoroughfare() != null)
-                {
-                    throughFare = locationList.get(0).getThoroughfare();
-                    Log.v(TAG, "[THROUGH FARE]" + throughFare);
-                }
-            }
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-    }
-
-    public String getLocality()
-    {
-        return locality;
-    }
-    public String getCountryCode()
-    {
-        return countryCode;
-    }
-    public String getAdminArea()
-    {
-        return adminArea;
-    }
-    public String getThroughFare()
-    {
-        return throughFare;
     }
     private class HttpAsyncTask extends AsyncTask<String, Void, String>
     {
