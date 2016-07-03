@@ -7,6 +7,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:id="@+id/activity_main_layout"
     tools:context="ubcomputerscience.ubwins.cellularnetworkmonitor.MainActivity">
 
 
@@ -57,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="CelNetMon v1.0"
+        android:text="CelNetMon v1.4"
         android:id="@+id/textView"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
